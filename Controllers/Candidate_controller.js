@@ -3,8 +3,8 @@ const bcrypt=require('bcryptjs')
 const Jobpost_model=require('../Modles/Jobpost_Model')
 const {jwt_sign_candidate}=require('../Middleware/Middleware')
 const Jobapplies_schema = require('../Modles/Jobapplies_model')
-
-
+const Recruter_model=require('../Modles/Recruter_mode')
+const nodemailer=require('nodemailer')
 exports.Candidate_Signup=async(req,res)=>{
     try{
         const {email,password,student_name,}=req.body;
@@ -78,6 +78,7 @@ exports.applies_job=async(req,res)=>{
                 return res.status(400).send({code:400,message:"You have Already Applied for the Job"})
             }
             else{
+                const check_recruter=await Recruter_model.findOne({_id:job_posted_by})
                 const apply_job=await Jobapplies_schema.create({
                     Jobpost_id:Jobpost_id,
                     Position_name:Position_name,
@@ -86,6 +87,21 @@ exports.applies_job=async(req,res)=>{
                     Job_title:Job_title,
                     Job_Description:Job_Description
                 })
+                const transporter = nodemailer.createTransport({
+                    host: 'smtp.ethereal.email',
+                    port: 'localhost:3000',
+                    auth: {
+                        user: 'rhiannon36@ethereal.email',
+                        pass: 'rXXJ6ZdQr42zM6TNez'
+                    }
+                });
+                const info = await transporter.sendMail({
+                    from: `rhiannon36@ethereal.email`,
+                    to: `${check_candidate.Email},${check_recruter.Email} ,himanshubisht8399@gmail.com`,
+                    subject: ` Job APply`, 
+                    text: "Job Applied", // plain text body
+                    html: `<b>You Applied for job </b>`, // html body
+                  });
                 return res.status(200).send({code:200,message:"Applied successfully!!"})
             }
         }
@@ -94,6 +110,7 @@ exports.applies_job=async(req,res)=>{
         }
     }
     catch(err){
+        console.log(err)
         return res.status(500).send({code:500,message:"Internal Server Error"})
     }
 }

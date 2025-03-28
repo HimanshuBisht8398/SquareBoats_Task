@@ -54,4 +54,7 @@ const authenticate_recruter=async(req,res,next)=>{
         next()
     })
 }
+
+
+
 module.exports={jwt_sign_candidate,jwt_sign_recruter,authenticate_user,authenticate_recruter}
